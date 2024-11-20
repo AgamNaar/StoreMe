@@ -22,24 +22,32 @@ class UserController {
                     { userName: userName }
                 ]
             });
-            if (existingUser) {
+
+            if (existingUser)
                 return res.status(400).json({ error: 'User already exists' });
-            }
 
             // Hash the password
             const hashedPassword = await bcrypt.hash(userPassword, 10);
 
             // Create a new user
             const newUser = new User({
-                userName: userName,
-                userEmail: userEmail,
+                userName,
+                userEmail,
                 userPassword: hashedPassword,
             });
 
-            // Save the user in the database
-            await newUser.save();
+            // try and Save the user in the database
+            if (!(await newUser.save()))
+                return res.status(500).json({ error: 'Internal server error' });
 
-            return res.status(201).json({ message: 'User registered successfully', newUser });
+            // Generate a JWT token with user ID
+            const token = jwt.sign(
+                { userId: newUser._id },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            return res.status(201).json({ message: 'User registered successfully', token });
         } catch (err) {
             console.error(err);
             return res.status(500).json({ error: 'Internal server error' });
@@ -56,30 +64,24 @@ class UserController {
                 return res.status(400).json('invalid info')
 
             // Find the user either by the email provided or user name 
-            let user;
-            if (!userEmail)
-                user = await User.findOne({ userName: userName });
-            else
-                user = await User.findOne({ userEmail: userEmail });
+            let user = userEmail ? await User.findOne({ userEmail: userEmail })
+                : await User.findOne({ userName: userName });
 
-
-
-
-            // check if user name exists 
-            if (!user) {
+            // check if user with that info exist in the DB
+            if (!user)
                 return res.status(404).json({ error: 'Invalid credentials' });
-            }
 
-            // Check if the password match
-            const isPasswordValid = await bcrypt.compare(userPassword, user.userPassword);
-            if (!isPasswordValid) {
+            // Check if the password match to the password in the DB
+            if (!(await bcrypt.compare(userPassword, user.userPassword))) {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
 
-            // Generate a JWT token
-            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-                expiresIn: '1h',
-            });
+            // Generate a JWT token with user ID
+            const token = jwt.sign(
+                { userId: user._id },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
 
             return res.status(200).json({ message: 'Login successful', token });
         } catch (err) {
@@ -87,6 +89,32 @@ class UserController {
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
+
+    // Method to handle delete account of a user
+    static async deleteUser(req, res) {
+        try {
+            const { userPassword } = req.body;
+
+            // Check if the user entered a password
+            if (!userPassword)
+                return res.status(400).json('invalid info')
+
+            // Check if the password match the user info in db 
+            if (!(await bcrypt.compare(userPassword, req.user.userPassword)))
+                return res.status(401).json({ error: 'Invalid credentials' });
+
+            // try to delete the user and check if it was deleted successfully 
+            if (!await req.user.deleteOne())
+                return res.status('500').json({ error: 'Internal server error' });
+
+            return res.status(200).json({ message: 'account deleted!' });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
 }
+
+
 
 module.exports = UserController;

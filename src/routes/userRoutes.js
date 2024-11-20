@@ -1,29 +1,21 @@
-// Route for all user related actions (signup, login, ...)
+// Route for all user related actions (signup, login, delete ect...)
 const express = require('express');
 const router = express.Router();
+const authenticateUser = require('../middlewares/authenticateUser');
 
 const userController = require('../controllers/userController')
 
-// Route to singUp 
-router.post('/singUp', async (req, res) => {
-    try {
-        await userController.signUp(req, res);
-
-    } catch (err) {
-        console.error('Error creating user:', err);
-        res.status(500).json({ error: 'Failed to create user' });
-    }
-});
+// Route to singUp
+// parm: email, username, password 
+router.post('/users/singUp', userController.signUp);
 
 // Route to login
-router.post('/login', async (req, res) => {
-    try {
-        await userController.login(req, res);
-    } catch (error) {
-        console.error('Error login user:', err);
-        res.status(500).json({ error: 'Failed to login into user' });
-    }
-});
+// parm: email or username and password 
+router.post('/users/login', userController.login);
+
+// Route to delete account
+// parm: password 
+router.delete('/users', authenticateUser, userController.deleteUser);
 
 
 
