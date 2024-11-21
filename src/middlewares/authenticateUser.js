@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-// Middleware to validate user and their actions on their account
+// Middleware to validate user and their actions on their account, add to req user info from db
 const authenticateUser = async (req, res, next) => {
     try {
         // Get the token from the Authorization header

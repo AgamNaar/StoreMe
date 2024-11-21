@@ -15,7 +15,7 @@ class UserController {
         try {
             const { userName, userEmail, userPassword } = req.body;
 
-            // Check if the user name or user password are already in use
+            // Check if the user name or user email are already in use
             const existingUser = await User.findOne({
                 $or: [
                     { userEmail: userEmail },
@@ -36,9 +36,8 @@ class UserController {
                 userPassword: hashedPassword,
             });
 
-            // try and Save the user in the database
-            if (!(await newUser.save()))
-                return res.status(500).json({ error: 'Internal server error' });
+            // save the user in the database
+            await newUser.save()
 
             // Generate a JWT token with user ID
             const token = jwt.sign(
@@ -72,9 +71,8 @@ class UserController {
                 return res.status(404).json({ error: 'Invalid credentials' });
 
             // Check if the password match to the password in the DB
-            if (!(await bcrypt.compare(userPassword, user.userPassword))) {
+            if (!await bcrypt.compare(userPassword, user.userPassword))
                 return res.status(401).json({ error: 'Invalid credentials' });
-            }
 
             // Generate a JWT token with user ID
             const token = jwt.sign(
@@ -100,12 +98,11 @@ class UserController {
                 return res.status(400).json('invalid info')
 
             // Check if the password match the user info in db 
-            if (!(await bcrypt.compare(userPassword, req.user.userPassword)))
+            if (!await bcrypt.compare(userPassword, req.user.userPassword))
                 return res.status(401).json({ error: 'Invalid credentials' });
 
-            // try to delete the user and check if it was deleted successfully 
-            if (!await req.user.deleteOne())
-                return res.status('500').json({ error: 'Internal server error' });
+            // delete the user and check if it was deleted successfully 
+            await req.user.deleteOne()
 
             return res.status(200).json({ message: 'account deleted!' });
         } catch (err) {

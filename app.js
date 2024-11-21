@@ -12,8 +12,8 @@ app.use(express.json());
 require('./src/config/db');
 
 // load routes 
-app.use('/', require('./src/routes/userRoutes'));
-app.use('/', require('./src/routes/groupRoutes'));
+app.use('/users', require('./src/routes/userRoutes'));
+app.use('/group', require('./src/routes/groupRoutes'));
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);

@@ -7,15 +7,15 @@ const userController = require('../controllers/userController')
 
 // Route to singUp
 // parm: email, username, password 
-router.post('/users/singUp', userController.signUp);
+router.post('/singUp', userController.signUp);
 
 // Route to login
 // parm: email or username and password 
-router.post('/users/login', userController.login);
+router.post('/login', userController.login);
 
-// Route to delete account
+// Route to delete account, require valid token 
 // parm: password 
-router.delete('/users', authenticateUser, userController.deleteUser);
+router.delete('', authenticateUser, userController.deleteUser);
 
 
 
