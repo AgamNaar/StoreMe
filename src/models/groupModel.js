@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
+// check later if can delete
+const Item = require('../models/itemModel');
 
 const memberSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
-    },
-    userName: {
-        type: String,
         required: true
     },
     role: {
@@ -36,6 +34,12 @@ const groupSchema = new mongoose.Schema({
         required: true
     },
     members: [memberSchema],
+    items: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Item'
+        }
+    ],
     createdAt: {
         type: Date,
         default: Date.now

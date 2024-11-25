@@ -1,10 +1,8 @@
-// Controller to handle all of group related actions (login,singUp)
-
 const Group = require('../models/groupModel');
 
 
 
-// group controller class
+// Controller to handle all of group related actions (login,singUp)
 class GroupController {
 
     // Method to create a new group 
@@ -37,8 +35,7 @@ class GroupController {
     // Method to join a new group 
     static async joinGroup(req, res) {
         try {
-
-            const { groupName } = req.body;
+            const { groupName } = req.params;
 
             // Find the group by name
             const group = await Group.findOne({ groupName });
@@ -68,13 +65,12 @@ class GroupController {
     // Method to delete a new group 
     static async deleteGroup(req, res) {
         try {
-
             // check if the user is an admin, only admins can delete groups
             if (req.role !== 'admin')
                 return res.status(400).json({ error: 'user is not an admin, cant delete group' });
 
             // remove the group from the db
-            await req.group.deleteOne();
+            await Group.deleteOne({ _id: req.groupId });
 
             return res.status(201).json({ message: 'group was deleted!' });
         } catch (error) {
@@ -82,6 +78,7 @@ class GroupController {
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
+
 }
 
 

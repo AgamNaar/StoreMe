@@ -1,5 +1,3 @@
-// Controller to handle all of user related actions (login,singUp)
-
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -7,7 +5,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// user controller class
+// Controller to handle all of user related actions (login,singUp,delete)
 class UserController {
 
     // Method to handle user sign-up, return token if successfully singed up 
@@ -24,7 +22,7 @@ class UserController {
             });
 
             if (existingUser)
-                return res.status(400).json({ error: 'User already exists' });
+                return res.status(409).json({ error: 'User already exists' });
 
             // Hash the password
             const hashedPassword = await bcrypt.hash(userPassword, 10);
@@ -68,7 +66,7 @@ class UserController {
 
             // check if user with that info exist in the DB
             if (!user)
-                return res.status(404).json({ error: 'Invalid credentials' });
+                return res.status(401).json({ error: 'Invalid credentials' });
 
             // Check if the password match to the password in the DB
             if (!await bcrypt.compare(userPassword, user.userPassword))
@@ -101,7 +99,7 @@ class UserController {
             if (!await bcrypt.compare(userPassword, req.user.userPassword))
                 return res.status(401).json({ error: 'Invalid credentials' });
 
-            // delete the user and check if it was deleted successfully 
+            // delete the user 
             await req.user.deleteOne()
 
             return res.status(200).json({ message: 'account deleted!' });

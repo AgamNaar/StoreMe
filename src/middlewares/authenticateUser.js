@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-// Middleware to validate user and their actions on their account, add to req user info from db
+// Middleware to validate user and to allow them to access most of the fetuses 
+// adds the user to req
 const authenticateUser = async (req, res, next) => {
     try {
         // Get the token from the Authorization header
@@ -26,8 +27,8 @@ const authenticateUser = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('Authentication failed:', error);
-        res.status(401).json({ error: 'Authentication failed' });
+        console.error('Error in authenticateUser middleware:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
