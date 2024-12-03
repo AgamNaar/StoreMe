@@ -7,7 +7,7 @@ const userController = require('../controllers/userController')
 
 // Route to singUp
 // parm: email, username, password 
-router.post('/singUp', userController.signUp);
+router.post('/signUp', userController.signUp);
 
 // Route to login
 // parm: email or username and password 

@@ -11,12 +11,12 @@ class UserController {
     // Method to handle user sign-up, return token if successfully singed up 
     static async signUp(req, res) {
         try {
-            const { userName, userEmail, userPassword } = req.body;
+            const { userName, email, password } = req.body;
 
             // Check if the user name or user email are already in use
             const existingUser = await User.findOne({
                 $or: [
-                    { userEmail: userEmail },
+                    { email: email },
                     { userName: userName }
                 ]
             });
@@ -25,13 +25,13 @@ class UserController {
                 return res.status(409).json({ error: 'User already exists' });
 
             // Hash the password
-            const hashedPassword = await bcrypt.hash(userPassword, 10);
+            const hashedPassword = await bcrypt.hash(password, 10);
 
             // Create a new user
             const newUser = new User({
                 userName,
-                userEmail,
-                userPassword: hashedPassword,
+                email,
+                password: hashedPassword,
             });
 
             // save the user in the database
@@ -54,14 +54,14 @@ class UserController {
     // Method to handle user login, return return token if successfully logged in
     static async login(req, res) {
         try {
-            const { userEmail, userName, userPassword } = req.body;
+            const { email, userName, password } = req.body;
 
             // check user info
-            if (!userPassword && (!userEmail || !userName))
+            if (!password && (!email || !userName))
                 return res.status(400).json('invalid info')
 
             // Find the user either by the email provided or user name 
-            let user = userEmail ? await User.findOne({ userEmail: userEmail })
+            let user = email ? await User.findOne({ email: email })
                 : await User.findOne({ userName: userName });
 
             // check if user with that info exist in the DB
@@ -69,7 +69,7 @@ class UserController {
                 return res.status(401).json({ error: 'Invalid credentials' });
 
             // Check if the password match to the password in the DB
-            if (!await bcrypt.compare(userPassword, user.userPassword))
+            if (!await bcrypt.compare(password, user.password))
                 return res.status(401).json({ error: 'Invalid credentials' });
 
             // Generate a JWT token with user ID
@@ -89,14 +89,14 @@ class UserController {
     // Method to handle delete account of a user
     static async deleteUser(req, res) {
         try {
-            const { userPassword } = req.body;
+            const { password } = req.body;
 
             // Check if the user entered a password
-            if (!userPassword)
+            if (!password)
                 return res.status(400).json('invalid info')
 
             // Check if the password match the user info in db 
-            if (!await bcrypt.compare(userPassword, req.user.userPassword))
+            if (!await bcrypt.compare(password, req.user.password))
                 return res.status(401).json({ error: 'Invalid credentials' });
 
             // delete the user 
