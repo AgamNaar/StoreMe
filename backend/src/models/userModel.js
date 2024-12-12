@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const Group = require('../models/groupModel');
+
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
@@ -18,7 +20,13 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    groupList: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Group'
+        }
+    ],
 });
 
 

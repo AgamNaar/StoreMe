@@ -17,6 +17,7 @@ router.post('/login', userController.login);
 // parm: password 
 router.delete('', authenticateUser, userController.deleteUser);
 
-
+// Route to delete account, require valid token 
+router.get('/getUserGroupList', authenticateUser, userController.getUserGroupList);
 
 module.exports = router;

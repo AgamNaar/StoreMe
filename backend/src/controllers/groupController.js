@@ -1,4 +1,6 @@
 const Group = require('../models/groupModel');
+const User = require('../models/userModel');
+
 
 
 
@@ -23,7 +25,10 @@ class GroupController {
             });
 
             // save the new group in DB
-            await newGroup.save()
+            await newGroup.save();
+
+            // Call the saveGroupIdOnUserList method correctly
+            await GroupController.saveGroupIdOnUserList(req, newGroup);
 
             return res.status(201).json({ message: 'group was created!' });
         } catch (error) {
@@ -55,6 +60,9 @@ class GroupController {
             // Save the updated group
             await group.save();
 
+            // Call the saveGroupIdOnUserList method correctly
+            await GroupController.saveGroupIdOnUserList(req, group);
+
             return res.status(201).json({ message: 'joined group!' });
         } catch (error) {
             console.log('Failed to join group', error);
@@ -72,6 +80,12 @@ class GroupController {
             // remove the group from the db
             await Group.deleteOne({ _id: req.groupId });
 
+            // remove from the user's group list the group
+            await User.updateOne(
+                { _id: req.user.id },
+                { $pull: { groupList: req.groupId } }
+            )
+
             return res.status(201).json({ message: 'group was deleted!' });
         } catch (error) {
             console.log('Failed to delete group', error);
@@ -79,8 +93,15 @@ class GroupController {
         }
     }
 
+    // Save the group id on the user's group list
+    static async saveGroupIdOnUserList(req, group) {
+        // save the group id in the user's group list 
+        await User.updateOne(
+            { _id: req.user.id },
+            { $push: { groupList: group.id } }
+        )
+    }
+
 }
-
-
 
 module.exports = GroupController;

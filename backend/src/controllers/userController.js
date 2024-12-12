@@ -108,8 +108,18 @@ class UserController {
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
+
+    // Method to get user's group list
+    static async getUserGroupList(req, res) {
+        try {
+            const groupList = await req.user.groupList;
+
+            return res.status(200).json({ groupList });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
 }
-
-
 
 module.exports = UserController;
