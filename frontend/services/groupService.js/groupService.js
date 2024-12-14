@@ -2,32 +2,25 @@
 import fetchApi from '../api';
 
 // Sign Up Function
-export const signUpRequest = async (userName, email, password, rePassword, setsSignUpToServer, setGlobalProviderAfterLogin) => {
+export const getUserGroupList = async (authToken, setIsLoading) => {
     try {
-        setsSignUpToServer(true);
+        setIsLoading(true);  // This should work now because setIsLoading is passed correctly
 
-        // Checks all info was entered
-        if (!userName || !email || !password || !rePassword)
-            throw new Error('Please enter all fields');
-
-        // Check password and re password are the same
-        if (password !== rePassword)
-            throw new Error('Passwords do not match');
-
+        console.log('...................')
+        console.log(authToken)
 
         // Send request to the server
-        const data = await fetchApi('/users/signUp', 'POST', { email, password, userName });
-
-        setGlobalProviderAfterLogin(userName, password, data.token)
+        return await fetchApi('/users/getUserGroupList', 'GET', {}, authToken);
     } catch (error) {
-        // Log the error and return the user an error he can understand
+        // Log the error and return a user-friendly message
         const errorForUser = errorHandler(error);
         console.log(error);
         throw new Error((errorForUser.message || error.message) || 'An error occurred during login.');
     } finally {
-        setsSignUpToServer(false)
+        setIsLoading(false); // Turn off loading
     }
 }
+
 
 
 // Login Function

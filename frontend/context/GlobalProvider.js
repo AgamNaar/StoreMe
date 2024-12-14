@@ -12,7 +12,8 @@ const GlobalContextProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [authToken, setAuthToken] = useState(null);  // Add token state
+    const [authToken, setAuthToken] = useState(null);
+
 
     // Retrieve token from localStorage on initial load
     useEffect(() => {
@@ -26,11 +27,10 @@ const GlobalContextProvider = ({ children }) => {
     }, []);
 
     // Function to log in and save token to context and localStorage
-    const login = (token, userData) => {
-        setAuthToken(token);
-        setUser(userData);
+    const setGlobalProviderAfterLogin = (name, password, token) => {
+        setUser({ name: name, password: password });
         setIsLoggedIn(true);
-        localStorage.setItem('authToken', token);
+        setAuthToken(token);
     };
 
     // Function to log out and remove token from context and localStorage
@@ -38,7 +38,6 @@ const GlobalContextProvider = ({ children }) => {
         setAuthToken(null);
         setUser(null);
         setIsLoggedIn(false);
-        localStorage.removeItem('authToken');
     };
 
     return (
@@ -48,7 +47,7 @@ const GlobalContextProvider = ({ children }) => {
                 user,
                 isLoading,
                 authToken,
-                login,
+                setGlobalProviderAfterLogin,
                 logout,
             }}
         >

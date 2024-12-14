@@ -1,4 +1,6 @@
 const User = require('../models/userModel');
+const Group = require('../models/groupModel');
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
@@ -112,9 +114,14 @@ class UserController {
     // Method to get user's group list
     static async getUserGroupList(req, res) {
         try {
-            const groupList = await req.user.groupList;
+            // Get the list of group IDs from the user
+            const groupList = req.user.groupList;
 
-            return res.status(200).json({ groupList });
+            // Fetch from the DB group name/description as well
+            const groups = await Group.find({ _id: { $in: groupList } }).select('groupName groupDescription');
+
+            // Return the fetched group details
+            return res.status(200).json(groups);
         } catch (err) {
             console.error(err);
             return res.status(500).json({ error: 'Internal server error' });

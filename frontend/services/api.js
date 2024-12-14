@@ -2,29 +2,36 @@
 const API_BASE_URL = 'http://192.168.14.114:6969';
 
 // Generic fetch wrapper with timeout
-const fetchApi = async (endpoint, method, body = null, headers = {}, token) => {
+const fetchApi = async (endpoint, method, body = null, authToken, headers = {}) => {
   const timeout = 10000; // 10 seconds
   const controller = new AbortController(); // Create an AbortController instance
   const signal = controller.signal; // Extract the signal
+
+
 
   const timeoutId = setTimeout(() => {
     controller.abort(); // Abort the fetch request after timeout
   }, timeout);
 
   try {
-    console.log(`${API_BASE_URL}${endpoint}`);
-    console.log(JSON.stringify(body));
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    // Only include the body for POST, PUT, PATCH, or DELETE methods
+    const options = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
+        'Authorization': authToken ? `Bearer ${authToken}` : '',
         ...headers,
       },
-      body: body ? JSON.stringify(body) : null,
       signal, // Pass the signal to the fetch request
-    });
+    };
+
+
+    // Add the body only if it's allowed for the method
+    if (body && method !== 'GET' && method !== 'HEAD') {
+      options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
 
     clearTimeout(timeoutId); // Clear the timeout if fetch succeeds
 
