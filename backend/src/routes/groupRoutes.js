@@ -24,12 +24,15 @@ router.post('/join/:groupName', groupController.joinGroup);
 // Route to delete a group
 router.delete('/:groupName', validateGroupAccess, groupController.deleteGroup);
 
+// Route to get all items of a group
+router.get('/:groupName/item', validateGroupAccess, groupController.getGroupItems);
+
 // route to add a new item to the group
-// body: name, description and not most amount
+// body: name, description and amount
 router.post('/:groupName/item', validateGroupAccess, itemController.addItemToTheGroup);
 
 // route to get/patch/delete an item from a group
-// body for patch: name, description and not most amount
+// body for patch: name, description and amount
 router.route("/:groupName/item/:itemId", validateGroupAccess, validateItemAccess)
     .get(validateGroupAccess, validateItemAccess, itemController.getItemFromTheGroup)
     .patch(validateGroupAccess, validateItemAccess, itemController.patchItemOfTheGroup)

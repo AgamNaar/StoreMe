@@ -1,7 +1,6 @@
 const Group = require('../models/groupModel');
 const User = require('../models/userModel');
-
-
+const Item = require('../models/itemModel');
 
 
 // Controller to handle all of group related actions (login,singUp)
@@ -92,6 +91,29 @@ class GroupController {
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
+
+    // Method to get all items of a group
+    static async getGroupItems(req, res) {
+        try {
+            // Fetch the group document by groupId and extract item IDs from the group
+            const group = await Group.findOne({ _id: req.groupId });
+
+            const itemsIDArray = group.items;
+
+            // Fetch the detailed information for each item
+            const items = await Item.find({ _id: { $in: itemsIDArray } });
+
+            return res.status(200).json(items);
+        } catch (error) {
+            console.error('Failed to get group items', error); // Log for debugging
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+
+
+
+
 
     // Save the group id on the user's group list
     static async saveGroupIdOnUserList(req, group) {
